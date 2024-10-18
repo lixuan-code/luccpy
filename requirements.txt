@@ -1,3 +1,4 @@
+dask
 numpy==1.26.4
 pandas==2.2.2
 xarray==2023.7.0
@@ -15,7 +16,4 @@ matplotlib==3.8.4
 jupyter==1.0.0
 ipykernel==6.29.3
 ipython==8.18.1
-fastcluster==1.2.6，
-palettable==3.3.3，
-
 anyio==3.*
