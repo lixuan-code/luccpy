@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "luccpy"
-version = "0.1.1"
+version = "0.1.2"
 keywords = ["climate"]
 authors = [
   { name="xfry", email="dhixuan@outlook.com" },
@@ -24,7 +24,7 @@ Homepage = "https://github.com/lixuan-code/"
 
 
 [tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
+dependencies = {file = ["pip_requirements.txt"]}
 
 [tool.setuptools.packages.find]
 where = ["src"]

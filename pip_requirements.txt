@@ -1,0 +1,12 @@
+dask
+jupyter
+openpyxl
+netcdf4
+geopandas
+salem
+shap
+scikit-learn
+rioxarray
+pingouin
+pymannkendall
+matplotlib
