@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Union
+
 import xarray as xr
 
 from .calc_deterministic import (
@@ -27,7 +29,7 @@ __all__ = [
 ]
 
 
-def _stack_input_if_needed(data_list, dim):
+def _stack_input_if_needed(data_list:list[xr.DataArray], dim):
     if len(dim) > 1:
         new_dim = "_".join(dim)
         new_data_list = [data.stack(**{new_dim: dim}) for data in data_list]
@@ -46,7 +48,7 @@ def _determine_input_core_dims(dim, data_list_num):
     return input_core_dims
 
 
-def calc_linregress(data, dim="time"):
+def calc_linregress(data: xr.DataArray, dim: str = "time") -> xr.Dataset:
     # Calculate linear regression for the given data
 
     res_dataarray = xr.apply_ufunc(
@@ -73,7 +75,7 @@ def calc_linregress(data, dim="time"):
     return res_dataset
 
 
-def calc_mk_test(data, dim="time", alpha=0.05):
+def calc_mk_test(data: xr.DataArray, dim: str = "time", alpha: float = 0.05) -> xr.Dataset:
     # Apply Mann-Kendall test to the data for trend detection
 
     res_dataarray = xr.apply_ufunc(
@@ -84,7 +86,7 @@ def calc_mk_test(data, dim="time", alpha=0.05):
         output_dtypes=["float64"],
         dask="parallelized",
         vectorize=True,
-        kwargs={"alpha": alpha, },
+        kwargs={"alpha": alpha,},
         dask_gufunc_kwargs={
             "output_sizes": {"parameter": 1},
             "allow_rechunk": True,
@@ -102,7 +104,8 @@ def calc_mk_test(data, dim="time", alpha=0.05):
     return res_dataset
 
 
-def calc_bi_corr_rp(a, b, dim=None, method="pearson"):
+def calc_bi_corr_rp(a: xr.DataArray, b: xr.DataArray, dim=None,
+                    method: str = "pearson", is_skipna: bool = False) -> xr.Dataset:
     # Calculate bi-variate correlation based on the specified method
 
     if isinstance(dim, str):
@@ -120,7 +123,8 @@ def calc_bi_corr_rp(a, b, dim=None, method="pearson"):
         output_dtypes=["float64"],
         dask="parallelized",
         vectorize=True,
-        kwargs={"method": method, },
+        kwargs={"method": method,
+                "is_skipna": is_skipna},
         dask_gufunc_kwargs={
             "output_sizes": {"parameter": 1},
             "allow_rechunk": True,
@@ -137,7 +141,8 @@ def calc_bi_corr_rp(a, b, dim=None, method="pearson"):
     return res_dataset
 
 
-def calc_bi_pcorr_rp(data_list, variables, x_name, y_name, dim=None):
+def calc_bi_pcorr_rp(data_list: list[xr.DataArray], variables: list[str],
+                     x_name: str, y_name: str, dim=None, is_skipna: bool = False) -> xr.Dataset:
     # Calculate bi-variate partial correlation
 
     if isinstance(dim, str):
@@ -157,7 +162,8 @@ def calc_bi_pcorr_rp(data_list, variables, x_name, y_name, dim=None):
         vectorize=True,
         kwargs={"variables": variables,
                 "x_name": x_name,
-                "y_name": y_name, },
+                "y_name": y_name,
+                "is_skipna": is_skipna, },
         dask_gufunc_kwargs={
             "output_sizes": {"parameter": 1},
             "allow_rechunk": True,
@@ -174,7 +180,8 @@ def calc_bi_pcorr_rp(data_list, variables, x_name, y_name, dim=None):
     return res_dataset
 
 
-def calc_corr_r(data_list, variables, dim=None, method="pearson", is_pcorr=False):
+def calc_corr_r(data_list: list[xr.DataArray], variables: list[str], dim=None,
+                method: str = "pearson", is_pcorr: bool = False, is_skipna: bool = False) -> xr.Dataset:
     # Calculate correlation (pearson or partial) for the given variables
     if isinstance(dim, str):
         dim = [dim]
@@ -195,7 +202,8 @@ def calc_corr_r(data_list, variables, dim=None, method="pearson", is_pcorr=False
         vectorize=True,
         kwargs={"variables": variables,
                 "method": method,
-                "is_pcorr": is_pcorr, },
+                "is_pcorr": is_pcorr,
+                "is_skipna": is_skipna, },
         dask_gufunc_kwargs={
             "output_sizes": {"parameter": num_of_variables},
             "allow_rechunk": True,
@@ -211,7 +219,8 @@ def calc_corr_r(data_list, variables, dim=None, method="pearson", is_pcorr=False
     return res_dataset
 
 
-def linslope_spatial(data_list, variables, y_name, dim="time"):
+def linslope_spatial(data_list: list[xr.DataArray], variables: list[str],
+                     y_name: str, dim: Union[str, list[str]] = "time", is_skipna: bool = False) -> xr.Dataset:
     # Calculate linear slope for spatial data
     if isinstance(dim, str):
         dim = [dim]
@@ -231,7 +240,8 @@ def linslope_spatial(data_list, variables, y_name, dim="time"):
         dask="parallelized",
         vectorize=True,
         kwargs={"variables": variables,
-                "y_name": y_name},
+                "y_name": y_name,
+                "is_skipna": is_skipna, },
         dask_gufunc_kwargs={
             "output_sizes": {"parameter": num_of_variables},
             "allow_rechunk": True,
@@ -247,7 +257,8 @@ def linslope_spatial(data_list, variables, y_name, dim="time"):
     return res_dataset
 
 
-def linslope_pval_spatial(data_list, variables, y_name, dim="time"):
+def linslope_pval_spatial(data_list: list[xr.DataArray], variables: list[str],
+                          y_name: str, dim: Union[str, list[str]] = "time", is_skipna: bool = False) -> xr.Dataset:
     # Calculate p-values for linear regression slopes in spatial data
 
     if isinstance(dim, str):
@@ -268,7 +279,8 @@ def linslope_pval_spatial(data_list, variables, y_name, dim="time"):
         dask="parallelized",
         vectorize=True,
         kwargs={"variables": variables,
-                "y_name": y_name},
+                "y_name": y_name,
+                "is_skipna": is_skipna, },
         dask_gufunc_kwargs={
             "output_sizes": {"parameter": num_of_variables},
             "allow_rechunk": True,
@@ -284,7 +296,8 @@ def linslope_pval_spatial(data_list, variables, y_name, dim="time"):
     return res_dataset
 
 
-def calc_sensity_spatial(data_list, variables, y_name, dim="time"):
+def calc_sensity_spatial(data_list: list[xr.DataArray], variables: list[str],
+                         y_name: str, dim: Union[str, list[str]] = "time", is_skipna: bool = False) -> xr.Dataset:
     # Calculate sensitivity for spatial data using Random Forest
     if isinstance(dim, str):
         dim = [dim]
@@ -304,7 +317,8 @@ def calc_sensity_spatial(data_list, variables, y_name, dim="time"):
         dask="parallelized",
         vectorize=True,
         kwargs={"variables": variables,
-                "y_name": y_name},
+                "y_name": y_name,
+                "is_skipna": is_skipna, },
         dask_gufunc_kwargs={
             "output_sizes": {"parameter": num_of_variables},
             "allow_rechunk": True,
@@ -320,7 +334,8 @@ def calc_sensity_spatial(data_list, variables, y_name, dim="time"):
     return res_dataset
 
 
-def calc_maxshap_spatial(data_list, variables, y_name, dim="time"):
+def calc_maxshap_spatial(data_list: list[xr.DataArray], variables: list[str],
+                         y_name: str, dim: Union[str, list[str]] = "time", is_skipna: bool = False) -> xr.Dataset:
     # Calculate the maximum SHAP value for spatial data using Random Forest
     if isinstance(dim, str):
         dim = [dim]
@@ -336,7 +351,8 @@ def calc_maxshap_spatial(data_list, variables, y_name, dim="time"):
         dask="parallelized",
         vectorize=True,
         kwargs={"variables": variables,
-                "y_name": y_name},
+                "y_name": y_name,
+                "is_skipna": is_skipna, },
     )
 
     res_dataarray.name = "maxshap"
