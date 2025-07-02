@@ -14,6 +14,7 @@ __all__ = [
     "read_wrfout_to_ds",
     "trans_tif_to_shp",
     "trans_h5_to_tif",
+    "trans_grd_to_tif",
     "save_da_to_tif",
 ]
 
@@ -101,6 +102,12 @@ def trans_h5_to_tif(in_hdf_file: str, out_raster_file: str, geo_params: list[flo
     xds.rio.to_raster(out_raster_file)
 
     print(f"Transformation of {in_hdf_file} completed and saved as {out_raster_file}!")
+
+
+def trans_grd_to_tif(grd_file: str, tif_file: str) -> None:
+    grd_image = xr.open_dataarray(grd_file, engine="rasterio").squeeze()
+    grd_image.rio.to_raster(tif_file)
+    print(f"Transformation of {grd_file} completed and saved as {tif_file}!")
 
 
 def save_da_to_tif(da: xr.DataArray, ofile: str, crs="epsg:4326", is_wrfout: bool = False) -> None:
